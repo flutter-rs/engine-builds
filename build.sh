@@ -1,6 +1,10 @@
 #/bin/bash
 
-echo Hello
+echo Environment
+
+export DEPOT_TOOLS_PATH="${PWD}/depot_tools"
+export BUILDROOT_PATH="${PWD}/buildroot"
+export ENGINE_PATH="${PWD}/engine"
 
 env
 
@@ -9,6 +13,7 @@ echo User:
 whoami
 
 export PATH="$PATH:$DEPOT_TOOLS_PATH"
+
 apt-get update
 apt-get install -y git wget curl unzip python lsb-release sudo apt-transport-https
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $DEPOT_TOOLS_PATH
