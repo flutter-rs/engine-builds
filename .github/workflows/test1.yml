@@ -15,7 +15,7 @@ jobs:
       run: |
         pwd
         ls
-    - name: test sudo
+    - name: So build
       run: |
         chmod +x ./build.sh
         sudo ./build.sh
