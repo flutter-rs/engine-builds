@@ -10,11 +10,15 @@ jobs:
       BUILDROOT_PATH: buildroot
       ENGINE_PATH: engine
     steps:
+    - uses: actions/checkout@v1
+    - name: early print
+      run: |
+        pwd
+        ls
     - name: test sudo
       run: |
         chmod +x ./build.sh
         sudo ./build.sh
-#    - uses: actions/checkout@v1
     - name: Run a multi-line script
       run: |
         export PATH="$PATH:$DEPOT_TOOLS_PATH"
