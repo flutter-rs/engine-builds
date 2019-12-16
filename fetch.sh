@@ -31,9 +31,9 @@ gclient sync
 
 echo "Instaling build depts"
 cd $ENGINE_PATH/src
-./build/install-build-deps-android.sh --no-prompt
-./build/install-build-deps.sh --no-prompt
-./build/install-build-deps-linux-desktop.sh
+#sudo ./build/install-build-deps-android.sh --no-prompt
+sudo ./build/install-build-deps.sh --no-prompt
+sudo ./build/install-build-deps-linux-desktop.sh
 
 echo "Getting extra depts"
 sudo apt-get update && apt-get install -y google-chrome-stable libx11-dev
