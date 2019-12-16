@@ -23,7 +23,7 @@ export PATH="$PATH:$DEPOT_TOOLS_PATH"
 
 echo "Fetching engine"
 mkdir -p $ENGINE_PATH
-echo 'solutions = [{"managed": False,"name": "src/flutter","url": "git@github.com:flutter/engine.git","deps_file": "DEPS", "custom_vars": {"download_android_deps" : ' $USE_ANDROID ', "download_windows_deps" : False,},},]' > $ENGINE_PATH/.gclient
+echo 'solutions = [{"managed": False,"name": "src/flutter","url": "git@github.com:flutter/engine.git","deps_file": "DEPS", "custom_vars": {"download_android_deps" : False, "download_windows_deps" : False,},},]' > $ENGINE_PATH/.gclient
 cd $ENGINE_PATH
 gclient sync
 
