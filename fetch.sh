@@ -12,14 +12,13 @@ echo User:
 
 whoami
 
-
 echo Add github
 echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 echo Installing deps
-apt-get update
-apt-get install -y git wget curl unzip python lsb-release sudo apt-transport-https
+sudo apt-get update
+sudo  apt-get install -y git wget curl unzip python lsb-release sudo apt-transport-https
 
 echo "Getting depot tools"
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $DEPOT_TOOLS_PATH
@@ -35,8 +34,8 @@ echo "Instaling build depts"
 
 ./build/install-build-deps-android.sh --no-prompt
 ./build/install-build-deps.sh --no-prompt
- sudo ./build/install-build-deps-linux-desktop.sh
+./build/install-build-deps-linux-desktop.sh
 
 echo "Getting extra depts"
-apt-get update && apt-get install -y google-chrome-stable libx11-dev
-apt-get clean
+sudo apt-get update && apt-get install -y google-chrome-stable libx11-dev
+sudo apt-get clean

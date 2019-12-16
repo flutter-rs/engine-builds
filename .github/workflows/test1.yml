@@ -14,11 +14,11 @@ jobs:
     - name: Downloading
       run: |
         chmod +x ./fetch.sh
-        sudo ./fetch.sh
+        ./fetch.sh
     - name: Building
       run: |
         chmod +x ./build.sh
-        sudo ./build.sh
+        ./build.sh
     - uses: actions/upload-artifact@v1
       with:
         name: engine-linux-x64
