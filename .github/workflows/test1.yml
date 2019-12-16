@@ -11,10 +11,18 @@ jobs:
       run: |
         pwd
         ls
-    - name: So build
+    - name: Downloading
+      run: |
+        chmod +x ./fetch.sh
+        sudo ./fetch.sh
+    - name: Building
       run: |
         chmod +x ./build.sh
         sudo ./build.sh
+    - uses: actions/upload-artifact@v1
+      with:
+        name: engine-linux-x64
+        path: engine_out
     - name: test
       run: |
         pwd
