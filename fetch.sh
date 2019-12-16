@@ -30,7 +30,7 @@ cd $ENGINE_PATH
 gclient sync
 
 echo "Instaling build depts"
-
+cd $ENGINE_PATH/src
 ./build/install-build-deps-android.sh --no-prompt
 ./build/install-build-deps.sh --no-prompt
 ./build/install-build-deps-linux-desktop.sh
