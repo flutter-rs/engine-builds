@@ -14,6 +14,7 @@ whoami
 
 
 echo Add github
+echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 echo Installing deps
