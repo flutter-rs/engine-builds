@@ -10,6 +10,10 @@ jobs:
       BUILDROOT_PATH: buildroot
       ENGINE_PATH: engine
     steps:
+    - name: test sudo
+      run: |
+        chmod +x ./build.sh
+        sudo ./build.sh
 #    - uses: actions/checkout@v1
     - name: Run a multi-line script
       run: |
