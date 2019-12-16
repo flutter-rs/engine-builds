@@ -13,6 +13,9 @@ echo User:
 whoami
 
 
+echo Add github
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
 echo Installing deps
 apt-get update
 apt-get install -y git wget curl unzip python lsb-release sudo apt-transport-https
