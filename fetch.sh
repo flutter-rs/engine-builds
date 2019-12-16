@@ -13,8 +13,7 @@ echo User:
 whoami
 
 echo Add github
-echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/config
 
 echo Installing deps
 sudo apt-get update
