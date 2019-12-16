@@ -2,6 +2,10 @@
 
 echo Hello
 
+env
+
+echo User:
+
 whoami
 
 export PATH="$PATH:$DEPOT_TOOLS_PATH"
