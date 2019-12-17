@@ -26,7 +26,7 @@ ninja -C out/host_release
 echo Copying output
 mkdir $OUT_PATH
 
-export SRC_OUT_PATH="${ENGINE_PATH}/engine/src/out/host_release"
+export SRC_OUT_PATH="${ENGINE_PATH}/src/out/host_release"
 
 cp $SRC_OUT_PATH/libflutter_engine.so $OUT_PATH/libflutter_engine.so
 cp $SRC_OUT_PATH/icudtl.dat $OUT_PATH/icudtl.dat
