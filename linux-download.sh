@@ -26,5 +26,8 @@ sudo ./build/install-build-deps-android.sh --no-prompt
 sudo ./build/install-build-deps.sh --no-prompt
 
 echo "Getting extra depts"
-sudo apt-get update && sudo apt-get install -y google-chrome-stable libx11-dev
+sudo apt-get update
+sudo apt-get install -y google-chrome-stable libx11-dev android-tools-adb
 sudo apt-get clean
+
+java --version
