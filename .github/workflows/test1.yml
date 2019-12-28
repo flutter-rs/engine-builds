@@ -1,25 +1,25 @@
-name: Test1
+name: Flutter Engine
 
 on: [push]
 
 jobs:
-  build:
+  linux-build:
     runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v1
 
     - name: Fix permissions
       run: |
-        chmod +x ./download-linux.sh
-        chmod +x ./build-linux.sh
-        chmod +x ./icu-linux.sh
+        chmod +x ./linux-download.sh
+        chmod +x ./linux-build.sh
+        chmod +x ./linux-icu.sh
 
     - name: Download
-      run: ./download-linux.sh
+      run: ./linux-download.sh
 
     - name: Generate configs
+      working-directory: engine/src
       run: |
-        cd engine/src
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=arm64
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu x86
@@ -39,40 +39,40 @@ jobs:
         ./flutter/tools/gn --runtime-mode release --lto --stripped
 
     - name: Build android_debug_unopt
-      run: ./build-linux.sh android_debug_unopt
+      run: ./linux-build.sh android_debug_unopt
     - name: Build android_debug_unopt_arm64
-      run: ./build-linux.sh android_debug_unopt_arm64
+      run: ./linux-build.sh android_debug_unopt_arm64
     - name: Build android_debug_unopt_x86
-      run: ./build-linux.sh android_debug_unopt_x86
+      run: ./linux-build.sh android_debug_unopt_x86
     - name: Build android_debug_unopt_x64
-      run: ./build-linux.sh android_debug_unopt_x64
+      run: ./linux-build.sh android_debug_unopt_x64
     - name: Build host_debug_unopt
-      run: ./build-linux.sh host_debug_unopt
+      run: ./linux-build.sh host_debug_unopt
 
     - name: Build android_profile
-      run: ./build-linux.sh android_profile
+      run: ./linux-build.sh android_profile
     - name: Build android_profile_arm64
-      run: ./build-linux.sh android_profile_arm64
+      run: ./linux-build.sh android_profile_arm64
     - name: Build android_profile_x86
-      run: ./build-linux.sh android_profile_x86
+      run: ./linux-build.sh android_profile_x86
     - name: Build android_profile_x64
-      run: ./build-linux.sh android_profile_x64
+      run: ./linux-build.sh android_profile_x64
     - name: Build host_profile
-      run: ./build-linux.sh host_profile
+      run: ./linux-build.sh host_profile
 
     - name: Build android_release
-      run: ./build-linux.sh android_release
+      run: ./linux-build.sh android_release
     - name: Build android_release_arm64
-      run: ./build-linux.sh android_release_arm64
+      run: ./linux-build.sh android_release_arm64
     - name: Build android_release_x86
-      run: ./build-linux.sh android_release_x86
+      run: ./linux-build.sh android_release_x86
     - name: Build android_release_x64
-      run: ./build-linux.sh android_release_x64
+      run: ./linux-build.sh android_release_x64
     - name: Build host_release
-      run: ./build-linux.sh host_release
+      run: ./linux-build.sh host_release
 
     - name: Build icudtl
-      run: ./icu-linux.sh
+      run: ./linux-icu.sh
 
     - name: Uploading artifacts
       uses: actions/upload-artifact@v1
