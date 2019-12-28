@@ -29,5 +29,3 @@ echo "Getting extra depts"
 sudo apt-get update
 sudo apt-get install -y google-chrome-stable libx11-dev android-tools-adb
 sudo apt-get clean
-
-java --version
