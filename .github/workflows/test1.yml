@@ -18,8 +18,10 @@ jobs:
       run: ./linux-download.sh
 
     - name: Generate configs
-      working-directory: engine/src
+      working-directory: engine/src/
       run: |
+        pwd
+        ls
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=arm64
         ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=x86
