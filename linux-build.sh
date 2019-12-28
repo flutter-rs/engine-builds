@@ -3,7 +3,7 @@ DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 ENGINE_PATH="${PWD}/engine"
 export PATH="$PATH:$DEPOT_TOOLS_PATH"
 OUT_PATH="${PWD}/engine_out"
-TARGET=$0
+TARGET=$1
 
 echo "Building $TARGET"
 cd "${ENGINE_PATH}/src"
