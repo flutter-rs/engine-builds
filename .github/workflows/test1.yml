@@ -14,9 +14,13 @@ jobs:
         chmod +x ./linux-gn.sh
         chmod +x ./linux-build.sh
         chmod +x ./linux-icu.sh
+        chmod +x ./linux-dart.sh
 
     - name: Download
       run: ./linux-download.sh
+
+    - name: Dart
+      run: ./linux-dart.sh
 
     - name: Generate configs
       run: |

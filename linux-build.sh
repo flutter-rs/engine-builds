@@ -5,6 +5,8 @@ export PATH="$PATH:$DEPOT_TOOLS_PATH"
 OUT_PATH="${PWD}/engine_out"
 TARGET=$1
 
+export ANDROID_HOME=$ENGINE_PATH/src/third_party/android_tools/sdk
+
 echo "Building $TARGET"
 cd "${ENGINE_PATH}/src"
 ninja -C "out/${TARGET}"
