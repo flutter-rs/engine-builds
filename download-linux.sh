@@ -1,16 +1,7 @@
 #/bin/bash
-
-echo Environment
-
 export DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 export BUILDROOT_PATH="${PWD}/buildroot"
 export ENGINE_PATH="${PWD}/engine"
-
-env
-
-echo User:
-
-whoami
 
 echo Add github
 echo -e "StrictHostKeyChecking no\n" >> ~/.ssh/config
@@ -25,13 +16,13 @@ export PATH="$PATH:$DEPOT_TOOLS_PATH"
 
 echo "Fetching engine"
 mkdir -p $ENGINE_PATH
-echo 'solutions = [{"managed": False,"name": "src/flutter","url": "https://github.com/flutter/engine.git","deps_file": "DEPS", "custom_vars": {"download_android_deps" : False, "download_windows_deps" : False,},},]' > $ENGINE_PATH/.gclient
+echo 'solutions = [{"managed": False,"name": "src/flutter","url": "https://github.com/flutter/engine.git","deps_file": "DEPS", "custom_vars": {"download_android_deps" : True, "download_windows_deps" : False,},},]' > $ENGINE_PATH/.gclient
 cd $ENGINE_PATH
 gclient sync
 
 echo "Instaling build depts"
 cd $ENGINE_PATH/src
-#sudo ./build/install-build-deps-android.sh --no-prompt
+sudo ./build/install-build-deps-android.sh --no-prompt
 sudo ./build/install-build-deps.sh --no-prompt
 sudo ./build/install-build-deps-linux-desktop.sh
 
