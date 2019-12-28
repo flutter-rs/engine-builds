@@ -11,6 +11,7 @@ jobs:
     - name: Fix permissions
       run: |
         chmod +x ./linux-download.sh
+        chmod +x ./linux-gn.sh
         chmod +x ./linux-build.sh
         chmod +x ./linux-icu.sh
 
@@ -18,27 +19,24 @@ jobs:
       run: ./linux-download.sh
 
     - name: Generate configs
-      working-directory: engine/src/
       run: |
-        pwd
-        ls
-        ./flutter/tools/gn --runtime-mode=debug --unoptimized --android
-        ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=arm64
-        ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=x86
-        ./flutter/tools/gn --runtime-mode=debug --unoptimized --android --android-cpu=x64
-        ./flutter/tools/gn --runtime-mode=debug --unoptimized
+        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android"
+        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=arm64"
+        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=x86"
+        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=x64"
+        ./linux-gn.sh "--runtime-mode=debug --unoptimized"
 
-        ./flutter/tools/gn --runtime-mode profile --lto --android
-        ./flutter/tools/gn --runtime-mode profile --lto --android --android-cpu=arm64
-        ./flutter/tools/gn --runtime-mode profile --lto --android --android-cpu=x86
-        ./flutter/tools/gn --runtime-mode profile --lto --android --android-cpu=x64
-        ./flutter/tools/gn --runtime-mode profile --lto
+        ./linux-gn.sh "--runtime-mode profile --lto --android"
+        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=arm64"
+        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=x86"
+        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=x64"
+        ./linux-gn.sh "--runtime-mode profile --lto"
 
-        ./flutter/tools/gn --runtime-mode release --lto --stripped --android
-        ./flutter/tools/gn --runtime-mode release --lto --stripped --android --android-cpu=arm64
-        ./flutter/tools/gn --runtime-mode release --lto --stripped --android --android-cpu=x86
-        ./flutter/tools/gn --runtime-mode release --lto --stripped --android --android-cpu=x64
-        ./flutter/tools/gn --runtime-mode release --lto --stripped
+        ./linux-gn.sh "--runtime-mode release --lto --stripped --android"
+        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=arm64"
+        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=x86"
+        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=x64"
+        ./linux-gn.sh "--runtime-mode release --lto --stripped"
 
     - name: Build android_debug_unopt
       run: ./linux-build.sh android_debug_unopt

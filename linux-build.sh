@@ -1,7 +1,7 @@
 #/bin/bash
 DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 ENGINE_PATH="${PWD}/engine"
-PATH="$PATH:$DEPOT_TOOLS_PATH"
+export PATH="$PATH:$DEPOT_TOOLS_PATH"
 OUT_PATH="${PWD}/engine_out"
 TARGET=$0
 
