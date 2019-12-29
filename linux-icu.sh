@@ -6,6 +6,7 @@ OUT_PATH="${PWD}/engine_out/icudtl"
 TARGET=$0
 
 echo "Generating icudtl"
+mkdir -p $OUT_PATH
 cp $ENGINE_PATH/src/third_party/icu/flutter/icudtl.dat $OUT_PATH/icudtl.dat
 $ENGINE_PATH/src/flutter/sky/tools/objcopy.py --objcopy objcopy --input $OUT_PATH/icudtl.dat --output $OUT_PATH/icudtl-x64.o --arch x64
 $ENGINE_PATH/src/flutter/sky/tools/objcopy.py --objcopy objcopy --input $OUT_PATH/icudtl.dat --output $OUT_PATH/icudtl-x86.o --arch x86

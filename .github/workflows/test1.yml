@@ -8,10 +8,38 @@ jobs:
     strategy:
       matrix:
         config:
-        - gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
-          tag: android_debug_unopt
-        - gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64
-          tag: android_debug_unopt_arm64
+        - tag: android_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
+        - tag: android_debug_unopt_arm64
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64
+        - tag: android_debug_unopt_x86
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x86
+        - tag: android_debug_unopt_x64
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x64
+        - tag: host_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized
+
+        - tag: android_profile
+          gn: --embedder-for-target --runtime-mode profile --lto --android
+        - tag: android_profile_arm64
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=arm64
+        - tag: android_profile_x86
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=x86
+        - tag: android_profile_x64
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=x64
+        - tag: host_profile
+          gn: --embedder-for-target --runtime-mode profile --lto
+
+        - tag: android_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android
+        - tag: android_release_arm64
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=arm64
+        - tag: android_release_x86
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x86
+        - tag: android_release_x64
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x64
+        - tag: host_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped
     steps:
     - uses: actions/checkout@v1
     - name: Download
