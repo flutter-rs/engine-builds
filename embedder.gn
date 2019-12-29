@@ -23,7 +23,7 @@ action("icudtl_object") {
 
   args = [
     "--objcopy",
-    rebase_path(android_objcopy),
+    "objcopy",
     "--input",
     rebase_path(icudtl_input),
     "--output",
