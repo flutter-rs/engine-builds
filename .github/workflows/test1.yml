@@ -22,6 +22,8 @@ jobs:
     - name: Patch
       run: |
         cp main.gn engine/src/flutter/BUILD.gn
+        cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
+        cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
 
     - name: Dart
       run: ./linux-dart.sh

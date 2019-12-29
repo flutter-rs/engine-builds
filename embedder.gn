@@ -1,0 +1,319 @@
+# Copyright 2013 The Flutter Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("$flutter_root/common/config.gni")
+import("$flutter_root/shell/gpu/gpu.gni")
+import("$flutter_root/shell/platform/embedder/embedder.gni")
+import("$flutter_root/testing/testing.gni")
+
+action("icudtl_object") {
+  script = "$flutter_root/sky/tools/objcopy.py"
+
+  icudtl_input = "//third_party/icu/flutter/icudtl.dat"
+  icudtl_output = "$root_build_dir/flutter_icu/icudtl.o"
+
+  inputs = [
+    "$icudtl_input",
+  ]
+
+  outputs = [
+    "$icudtl_output",
+  ]
+
+  args = [
+    "--objcopy",
+    rebase_path(android_objcopy),
+    "--input",
+    rebase_path(icudtl_input),
+    "--output",
+    rebase_path(icudtl_output),
+    "--arch",
+    current_cpu,
+  ]
+}
+
+shell_gpu_configuration("embedder_gpu_configuration") {
+  enable_software = true
+  enable_vulkan = false
+  enable_gl = true
+  enable_metal = false
+}
+
+_framework_binary_subpath = "Versions/A/FlutterEmbedder"
+
+# Template for the embedder build. Used to allow building it multiple times with
+# different flags.
+template("embedder_source_set") {
+  forward_variables_from(invoker, "*")
+
+  source_set(target_name) {
+    sources = [
+      "$root_build_dir/flutter_icu/icudtl.o",
+      "embedder.cc",
+      "embedder.h",
+      "embedder_engine.cc",
+      "embedder_engine.h",
+      "embedder_external_texture_gl.cc",
+      "embedder_external_texture_gl.h",
+      "embedder_external_view_embedder.cc",
+      "embedder_external_view_embedder.h",
+      "embedder_include.c",
+      "embedder_layers.cc",
+      "embedder_layers.h",
+      "embedder_platform_message_response.cc",
+      "embedder_platform_message_response.h",
+      "embedder_render_target.cc",
+      "embedder_render_target.h",
+      "embedder_safe_access.h",
+      "embedder_surface.cc",
+      "embedder_surface.h",
+      "embedder_surface_gl.cc",
+      "embedder_surface_gl.h",
+      "embedder_surface_software.cc",
+      "embedder_surface_software.h",
+      "embedder_task_runner.cc",
+      "embedder_task_runner.h",
+      "embedder_thread_host.cc",
+      "embedder_thread_host.h",
+      "platform_view_embedder.cc",
+      "platform_view_embedder.h",
+      "vsync_waiter_embedder.cc",
+      "vsync_waiter_embedder.h",
+    ]
+
+    deps = [
+      ":embedder_gpu_configuration",
+      ":icudtl_object",
+      "$flutter_root/assets",
+      "$flutter_root/common",
+      "$flutter_root/flow",
+      "$flutter_root/fml",
+      "$flutter_root/lib/ui",
+      "$flutter_root/runtime:libdart",
+      "$flutter_root/shell/common",
+      "//third_party/dart/runtime/bin:dart_io_api",
+      "//third_party/skia",
+      "//third_party/tonic",
+    ]
+
+    public_configs += [ "$flutter_root:config" ]
+
+    ldflags = [ "-Wl,--dynamic-list=" + rebase_path("embedder_exports.lst") ]
+  }
+}
+
+embedder_source_set("embedder") {
+  public_configs = []
+}
+
+embedder_source_set("embedder_with_symbol_prefix") {
+  public_configs = [ ":embedder_prefix_config" ]
+}
+
+config("embedder_prefix_config") {
+  defines = [ "FLUTTER_API_SYMBOL_PREFIX=Embedder" ]
+}
+
+test_fixtures("fixtures") {
+  dart_main = "fixtures/main.dart"
+  fixtures = [
+    "fixtures/arc_end_caps.png",
+    "fixtures/compositor.png",
+    "fixtures/compositor_root_surface_xformation.png",
+    "fixtures/compositor_software.png",
+    "fixtures/compositor_with_platform_layer_on_bottom.png",
+    "fixtures/compositor_with_root_layer_only.png",
+    "fixtures/dpr_noxform.png",
+    "fixtures/dpr_xform.png",
+    "fixtures/gradient.png",
+    "fixtures/gradient_xform.png",
+    "fixtures/scene_without_custom_compositor.png",
+    "fixtures/scene_without_custom_compositor_with_xform.png",
+    "fixtures/verifyb143464703.png",
+    "fixtures/verifyb143464703_soft_noxform.png",
+  ]
+}
+
+if (current_toolchain == host_toolchain) {
+  executable("embedder_unittests") {
+    testonly = true
+
+    configs += [ "$flutter_root:export_dynamic_symbols" ]
+
+    include_dirs = [ "." ]
+
+    sources = [
+      "tests/embedder_a11y_unittests.cc",
+      "tests/embedder_config_builder.cc",
+      "tests/embedder_config_builder.h",
+      "tests/embedder_test.cc",
+      "tests/embedder_test.h",
+      "tests/embedder_test_compositor.cc",
+      "tests/embedder_test_compositor.h",
+      "tests/embedder_test_context.cc",
+      "tests/embedder_test_context.h",
+      "tests/embedder_unittests.cc",
+    ]
+
+    deps = [
+      ":embedder",
+      ":fixtures",
+      "$flutter_root/flow",
+      "$flutter_root/lib/ui",
+      "$flutter_root/runtime",
+      "$flutter_root/testing:dart",
+      "$flutter_root/testing:opengl",
+      "$flutter_root/testing:skia",
+      "//third_party/dart/runtime/bin:elf_loader",
+      "//third_party/skia",
+      "//third_party/tonic",
+    ]
+  }
+}
+
+shared_library("flutter_engine_library") {
+  visibility = [ ":*" ]
+
+  output_name = "flutter_engine"
+
+  if (is_mac && !embedder_for_target) {
+    ldflags = [ "-Wl,-install_name,@rpath/FlutterEmbedder.framework/$_framework_binary_subpath" ]
+  }
+
+  deps = [
+    ":embedder",
+  ]
+
+  public_configs = [ "$flutter_root:config" ]
+}
+
+copy("copy_headers") {
+  visibility = [ ":*" ]
+  sources = [
+    "embedder.h",
+  ]
+  outputs = [
+    "$root_out_dir/flutter_embedder.h",
+  ]
+}
+
+if (is_mac && !embedder_for_target) {
+  _flutter_embedder_framework_dir = "$root_out_dir/FlutterEmbedder.framework"
+
+  copy("copy_framework_headers") {
+    visibility = [ ":*" ]
+    sources = [
+      "embedder.h",
+    ]
+    outputs = [
+      "$_flutter_embedder_framework_dir/Versions/A/Headers/FlutterEmbedder.h",
+    ]
+  }
+
+  copy("copy_icu") {
+    visibility = [ ":*" ]
+    sources = [
+      "//third_party/icu/flutter/icudtl.dat",
+    ]
+    outputs = [
+      "$_flutter_embedder_framework_dir/Versions/A/Resources/icudtl.dat",
+    ]
+  }
+
+  action("copy_info_plist") {
+    script = "$flutter_root/build/copy_info_plist.py"
+    visibility = [ ":*" ]
+    sources = [
+      "assets/EmbedderInfo.plist",
+    ]
+    outputs = [
+      "$_flutter_embedder_framework_dir/Versions/A/Resources/Info.plist",
+    ]
+    args = [
+      rebase_path(sources[0]),
+      rebase_path(outputs[0]),
+      "--bitcode=$flutter_enable_bitcode",
+    ]
+  }
+
+  copy("copy_module_map") {
+    visibility = [ ":*" ]
+    sources = [
+      "assets/embedder.modulemap",
+    ]
+    outputs = [
+      "$_flutter_embedder_framework_dir/Versions/A/Modules/module.modulemap",
+    ]
+  }
+
+  copy("copy_dylib") {
+    visibility = [ ":*" ]
+
+    sources = [
+      "$root_out_dir/libflutter_engine.dylib",
+    ]
+    outputs = [
+      "$_flutter_embedder_framework_dir/$_framework_binary_subpath",
+    ]
+
+    deps = [
+      ":flutter_engine_library",
+    ]
+  }
+
+  action("generate_symlinks") {
+    visibility = [ ":*" ]
+    script = "//build/config/mac/package_framework.py"
+    outputs = [
+      "$root_build_dir/FlutterEmbedder.stamp",
+    ]
+    args = [
+      "--framework",
+      "FlutterEmbedder.framework",
+      "--version",
+      "A",
+      "--contents",
+      "FlutterEmbedder",
+      "Resources",
+      "Headers",
+      "Modules",
+      "--stamp",
+      "FlutterEmbedder.stamp",
+    ]
+    deps = [
+      ":copy_dylib",
+      ":copy_framework_headers",
+      ":copy_icu",
+      ":copy_info_plist",
+      ":copy_module_map",
+    ]
+  }
+
+  group("flutter_embedder_framework") {
+    visibility = [ ":*" ]
+    deps = [
+      ":generate_symlinks",
+    ]
+  }
+}
+
+group("flutter_engine") {
+  deps = []
+
+  build_embedder_api =
+      current_toolchain == host_toolchain || embedder_for_target
+
+  if (build_embedder_api) {
+    # All platforms require the embedder dylib and headers.
+    deps += [
+      ":copy_headers",
+      ":flutter_engine_library",
+    ]
+
+    # For the Mac, the dylib is packaged in a framework with the appropriate headers.
+    if (is_mac && !embedder_for_target) {
+      deps += [ ":flutter_embedder_framework" ]
+    }
+  }
+}
