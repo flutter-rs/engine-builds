@@ -8,14 +8,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Fix permissions
-      run: |
-        chmod +x ./linux-download.sh
-        chmod +x ./linux-gn.sh
-        chmod +x ./linux-build.sh
-        chmod +x ./linux-icu.sh
-        chmod +x ./linux-dart.sh
-
     - name: Download
       run: ./linux-download.sh
 
