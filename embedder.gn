@@ -23,9 +23,9 @@ action("icudtl_object") {
   ]
 
   if (is_android) {
-    objcopy_path = rebase_path(android_objcopy);
+    objcopy_path = rebase_path(android_objcopy)
   } else {
-    objcopy_path = "objcopy";
+    objcopy_path = "objcopy"
   }
 
   args = [
