@@ -19,31 +19,33 @@ jobs:
     - name: Download
       run: ./linux-download.sh
 
+    - name: Patch
+      run: |
+        cp main.gn engine/src/BUILD.gn
+
     - name: Dart
       run: ./linux-dart.sh
 
     - name: Generate configs
       run: |
-        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android"
-        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=arm64"
-        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=x86"
-        ./linux-gn.sh "--runtime-mode=debug --unoptimized --android --android-cpu=x64"
-        ./linux-gn.sh "--runtime-mode=debug --unoptimized"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x86"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized"
 
-        ./linux-gn.sh "--runtime-mode profile --lto --android"
-        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=arm64"
-        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=x86"
-        ./linux-gn.sh "--runtime-mode profile --lto --android --android-cpu=x64"
-        ./linux-gn.sh "--runtime-mode profile --lto"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=arm64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=x86"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=x64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto"
 
-        ./linux-gn.sh "--runtime-mode release --lto --stripped --android"
-        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=arm64"
-        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=x86"
-        ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=x64"
-        ./linux-gn.sh "--runtime-mode release --lto --stripped"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=arm64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x86"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x64"
+        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped"
 
-    - name: Build host_debug_unopt
-      run: ./linux-build.sh host_debug_unopt
     - name: Build android_debug_unopt
       run: ./linux-build.sh android_debug_unopt
     - name: Build android_debug_unopt_arm64
@@ -52,7 +54,8 @@ jobs:
       run: ./linux-build.sh android_debug_unopt_x86
     - name: Build android_debug_unopt_x64
       run: ./linux-build.sh android_debug_unopt_x64
-
+    - name: Build host_debug_unopt
+      run: ./linux-build.sh host_debug_unopt
 
     - name: Build android_profile
       run: ./linux-build.sh android_profile
@@ -76,8 +79,12 @@ jobs:
     - name: Build host_release
       run: ./linux-build.sh host_release
 
+    - name: Print tree
+      run: tree engine/src/out
+
     - name: Build icudtl
       run: ./linux-icu.sh
+      
 
     - name: Uploading artifacts
       uses: actions/upload-artifact@v1
