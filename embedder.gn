@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("//build/config/android/config.gni")
 import("$flutter_root/common/config.gni")
 import("$flutter_root/shell/gpu/gpu.gni")
 import("$flutter_root/shell/platform/embedder/embedder.gni")
@@ -21,9 +22,15 @@ action("icudtl_object") {
     "$icudtl_output",
   ]
 
+  if (is_android) {
+    objcopy_path = rebase_path(android_objcopy);
+  } else {
+    objcopy_path = "objcopy";
+  }
+
   args = [
     "--objcopy",
-    "objcopy",
+    objcopy_path,
     "--input",
     rebase_path(icudtl_input),
     "--output",
