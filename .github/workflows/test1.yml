@@ -24,15 +24,15 @@ jobs:
     - name: Dart
       run: ./linux-dart.sh
     - name: Generate configs
-      run: ${{ format('./linux-gn.sh \"{0}\"', matrix.gn) }}
+      run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
     - name: Build
-      run: ${{ format('./linux-build.sh {0}', matrix.tag) }}
+      run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
     - name: Print tree
       run: tree engine/src/out
     - name: Uploading artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: ${{ format('engine-linux_x64-{0}', matrix.tag) }}
+        name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
         path: engine_out
   
   linux-icu:
