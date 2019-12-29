@@ -3,8 +3,39 @@ name: Flutter Engine
 on: [push]
 
 jobs:
+  create-release:
+    name: Release
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Download
+        run: ./linux-download.sh
+      - name: Get flutter version
+        id: get_flutter_info
+        run: |
+          value=`git -C src/flutter/ rev-parse HEAD`
+          echo ::set-output name=flutter_version::$value
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ format('f_{0}', steps.get_flutter_info.outputs.flutter_version) }} 
+          release_name: Flutter ${{ steps.get_flutter_info.outputs.flutter_version }}
+          draft: false
+          prerelease: false
+      - name: Store release url
+        run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
+      - name: Upload release url
+        uses: actions/upload-artifact@v1
+        with:
+          name: release_url
+          path: release_url.txt
+
   linux:
     runs-on: ubuntu-16.04
+    needs: [ create-release ]
     strategy:
       matrix:
         config:
@@ -56,9 +87,31 @@ jobs:
     - name: Build
       run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
     - name: Print tree
-      run: tree engine/src/out
+      run: tree ./
     - name: Uploading artifacts
       uses: actions/upload-artifact@v1
       with:
         name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
         path: engine_out
+    - name: Create release zip
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: ${{ format('zip -qq -r ./{0}.zip ./engine_out/', matrix.config.tag) }}
+    - name: Load release url
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
+    - name: Get release url
+      id: get_release_info
+      run: |
+        value=`cat release_url/release_url.txt`
+        echo ::set-output name=upload_url::$value
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_release_info.outputs.upload_url }} 
+        asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
+        asset_name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
+        asset_content_type: application/octet-stream
