@@ -42,6 +42,8 @@ jobs:
         ./linux-gn.sh "--runtime-mode release --lto --stripped --android --android-cpu=x64"
         ./linux-gn.sh "--runtime-mode release --lto --stripped"
 
+    - name: Build host_debug_unopt
+      run: ./linux-build.sh host_debug_unopt
     - name: Build android_debug_unopt
       run: ./linux-build.sh android_debug_unopt
     - name: Build android_debug_unopt_arm64
@@ -50,8 +52,7 @@ jobs:
       run: ./linux-build.sh android_debug_unopt_x86
     - name: Build android_debug_unopt_x64
       run: ./linux-build.sh android_debug_unopt_x64
-    - name: Build host_debug_unopt
-      run: ./linux-build.sh host_debug_unopt
+
 
     - name: Build android_profile
       run: ./linux-build.sh android_profile
