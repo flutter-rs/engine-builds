@@ -7,11 +7,11 @@ jobs:
     name: Release
     runs-on: ubuntu-16.04
     steps:
-    - name: Clone
-      uses: actions/checkout@v2
-      with:
-        repository: 'flutter/engine'
-        path: 'engine'
+      - name: Clone
+        uses: actions/checkout@v2
+        with:
+          repository: 'flutter/engine'
+          path: 'engine'
       - name: Get flutter version
         id: get_flutter_info
         run: |
