@@ -3,85 +3,48 @@ name: Flutter Engine
 on: [push]
 
 jobs:
-  linux-build:
+  linux:
     runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        config:
+        - gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
+          tag: android_debug_unopt
+        - gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64
+          tag: android_debug_unopt_arm64
     steps:
     - uses: actions/checkout@v1
-
     - name: Download
       run: ./linux-download.sh
-
     - name: Patch
       run: |
         cp main.gn engine/src/flutter/BUILD.gn
         cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
         cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
-
     - name: Dart
       run: ./linux-dart.sh
-
     - name: Generate configs
-      run: |
-        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x86"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode=debug --unoptimized"
-
-        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=arm64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=x86"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto --android --android-cpu=x64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode profile --lto"
-
-        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=arm64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x86"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped --android --android-cpu=x64"
-        ./linux-gn.sh "--embedder-for-target --runtime-mode release --lto --stripped"
-
-    - name: Build android_debug_unopt
-      run: ./linux-build.sh android_debug_unopt
-    - name: Build android_debug_unopt_arm64
-      run: ./linux-build.sh android_debug_unopt_arm64
-    - name: Build android_debug_unopt_x86
-      run: ./linux-build.sh android_debug_unopt_x86
-    - name: Build android_debug_unopt_x64
-      run: ./linux-build.sh android_debug_unopt_x64
-    - name: Build host_debug_unopt
-      run: ./linux-build.sh host_debug_unopt
-
-    - name: Build android_profile
-      run: ./linux-build.sh android_profile
-    - name: Build android_profile_arm64
-      run: ./linux-build.sh android_profile_arm64
-    - name: Build android_profile_x86
-      run: ./linux-build.sh android_profile_x86
-    - name: Build android_profile_x64
-      run: ./linux-build.sh android_profile_x64
-    - name: Build host_profile
-      run: ./linux-build.sh host_profile
-
-    - name: Build android_release
-      run: ./linux-build.sh android_release
-    - name: Build android_release_arm64
-      run: ./linux-build.sh android_release_arm64
-    - name: Build android_release_x86
-      run: ./linux-build.sh android_release_x86
-    - name: Build android_release_x64
-      run: ./linux-build.sh android_release_x64
-    - name: Build host_release
-      run: ./linux-build.sh host_release
-
+      run: ${{ format('./linux-gn.sh \"{0}\"', matrix.gn) }}
+    - name: Build
+      run: ${{ format('./linux-build.sh {0}', matrix.tag) }}
     - name: Print tree
       run: tree engine/src/out
-
-    - name: Build icudtl
-      run: ./linux-icu.sh
-      
-
     - name: Uploading artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: engine-linux-x64
+        name: ${{ format('engine-linux_x64-{0}', matrix.tag) }}
+        path: engine_out
+  
+  linux-icu:
+    runs-on: ubuntu-16.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download
+      run: ./linux-download.sh
+    - name: Build icudtl
+      run: ./linux-icu.sh
+    - name: Uploading artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: engine-linux_x64-icudtl
         path: engine_out
