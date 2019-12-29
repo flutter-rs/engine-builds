@@ -7,13 +7,15 @@ jobs:
     name: Release
     runs-on: ubuntu-16.04
     steps:
-      - uses: actions/checkout@v1
-      - name: Download
-        run: ./linux-download.sh
+    - name: Clone
+      uses: actions/checkout@v2
+      with:
+        repository: 'flutter/engine'
+        path: 'engine'
       - name: Get flutter version
         id: get_flutter_info
         run: |
-          value=`git -C src/flutter/ rev-parse HEAD`
+          value=`git -C ./engine/ rev-parse HEAD`
           echo ::set-output name=flutter_version::$value
       - name: Create release
         id: create_release
