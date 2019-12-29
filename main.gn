@@ -23,6 +23,13 @@ group("flutter") {
     "$flutter_root/shell/platform/embedder:flutter_engine",
 #    "$flutter_root/sky",
   ]
+
+  if (current_toolchain == host_toolchain) {
+    public_deps += [
+      "$flutter_root/flutter_frontend_server:frontend_server",
+      "//third_party/dart:create_sdk",
+    ]
+  }
 }
 
 config("config") {
