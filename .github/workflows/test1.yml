@@ -62,17 +62,3 @@ jobs:
       with:
         name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
         path: engine_out
-  
-  linux-icu:
-    runs-on: ubuntu-16.04
-    steps:
-    - uses: actions/checkout@v1
-    - name: Download
-      run: ./linux-download.sh
-    - name: Build icudtl
-      run: ./linux-icu.sh
-    - name: Uploading artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: engine-linux_x64-icudtl
-        path: engine_out
