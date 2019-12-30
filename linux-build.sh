@@ -12,7 +12,7 @@ cd "${ENGINE_PATH}/src"
 ninja -C "out/${TARGET}"
 
 echo "Copying output"
-mkdir -p "${OUT_PATH}/${TARGET}"
+mkdir -p "${OUT_PATH}/gen"
 
 export SRC_OUT_PATH="${ENGINE_PATH}/src/out/${TARGET}"
 
