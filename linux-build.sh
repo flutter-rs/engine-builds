@@ -12,7 +12,7 @@ cd "${ENGINE_PATH}/src"
 ninja -C "out/${TARGET}"
 
 echo "Copying output"
-mkdir -p "${OUT_PATH}/${TARGET}"
+mkdir -p "${OUT_PATH}/gen"
 
 export SRC_OUT_PATH="${ENGINE_PATH}/src/out/${TARGET}"
 
@@ -21,5 +21,5 @@ cp $SRC_OUT_PATH/libflutter_engine.so $OUT_PATH/libflutter_engine.so
 cp $SRC_OUT_PATH/flutter_embedder.h $OUT_PATH/flutter_embedder.h
 cp $SRC_OUT_PATH/dart $OUT_PATH/dart || :
 cp -r $SRC_OUT_PATH/flutter_patched_sdk $OUT_PATH/flutter_patched_sdk || :
-cp $SRC_OUT_PATH/frontend_server.dart.snapshot $OUT_PATH/frontend_server.dart.snapshot || :
+cp $SRC_OUT_PATH/gen/frontend_server.dart.snapshot $OUT_PATH/gen/frontend_server.dart.snapshot || :
 cp $SRC_OUT_PATH/gen_snapshot $OUT_PATH/gen_snapshot || :
