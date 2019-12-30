@@ -96,9 +96,7 @@ jobs:
         name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
         path: engine_out
     - name: Create release zip
-      uses: montudor/action-zip@v0.1.0
-      with:
-        args: ${{ format('zip -qq -r ./{0}.zip ./engine_out', matrix.config.tag) }}
+      run: ${{ format('zip -qq -r ./{0}.zip ./engine_out/*', matrix.config.tag) }}
     - name: Load release url
       uses: actions/download-artifact@v1
       with:

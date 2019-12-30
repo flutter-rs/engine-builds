@@ -28,6 +28,7 @@ sudo ./build/install-build-deps.sh --no-prompt
 echo "Getting extra depts"
 sudo apt-get update
 sudo apt-get install -y tree
+sudo apt-get install -y zip
 sudo apt-get install -y build-essential
 sudo apt-get install -y google-chrome-stable libx11-dev
 # android-tools-adb
