@@ -23,3 +23,5 @@ cp $SRC_OUT_PATH/dart $OUT_PATH/dart || :
 cp -r $SRC_OUT_PATH/flutter_patched_sdk $OUT_PATH/flutter_patched_sdk || :
 cp $SRC_OUT_PATH/gen/frontend_server.dart.snapshot $OUT_PATH/gen/frontend_server.dart.snapshot || :
 cp $SRC_OUT_PATH/gen_snapshot $OUT_PATH/gen_snapshot || :
+cp $SRC_OUT_PATH/clang_x64/gen_snapshot $OUT_PATH/gen_snapshot_x64 || :
+cp $SRC_OUT_PATH/clang_x86/gen_snapshot $OUT_PATH/gen_snapshot_x86 || :
