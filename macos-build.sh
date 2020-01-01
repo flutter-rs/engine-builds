@@ -17,8 +17,7 @@ mkdir -p "${OUT_PATH}/gen"
 export SRC_OUT_PATH="${ENGINE_PATH}/src/out/${TARGET}"
 
 echo Copying other outputs
-cp -r $SRC_OUT_PATH/FlutterMacOS.framework $OUT_PATH/FlutterMacOS.framework
-cp $SRC_OUT_PATH/libFlutterMacOS.dylib $OUT_PATH/libFlutterMacOS.dylib
+cp $SRC_OUT_PATH/libflutter_engine.dylib $OUT_PATH/libflutter_engine.dylib
 cp $SRC_OUT_PATH/flutter_embedder.h $OUT_PATH/flutter_embedder.h
 cp $SRC_OUT_PATH/dart $OUT_PATH/dart || :
 cp -r $SRC_OUT_PATH/flutter_patched_sdk $OUT_PATH/flutter_patched_sdk || :
