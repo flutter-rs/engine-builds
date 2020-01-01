@@ -174,7 +174,7 @@ jobs:
       - name: Generate configs
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
-        run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
+        run: ${{ format('./macos-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
         run: tree ./
       - name: Uploading artifacts
