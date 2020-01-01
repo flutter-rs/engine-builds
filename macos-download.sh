@@ -1,4 +1,4 @@
-#/bin/bash
+#/bin/sh
 export DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 
 echo "Getting depot tools"

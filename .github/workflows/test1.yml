@@ -74,6 +74,7 @@ jobs:
         - tag: host_release
           gn: --embedder-for-target --runtime-mode release --lto --stripped
     steps:
+<<<<<<< HEAD
     - uses: actions/checkout@v1
     - name: Download
       run: ./linux-download.sh
@@ -115,3 +116,72 @@ jobs:
         asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
         asset_name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
         asset_content_type: application/octet-stream
+||||||| parent of 941c24d... Install dependencies
+      - uses: actions/checkout@v1
+      - name: Load engine version
+        uses: actions/download-artifact@v1
+        with:
+          name: engine_version
+      - name: Get engine version
+        id: get_engine_version
+        run: |
+          value=`cat engine_version/engine_version.txt`
+          echo ::set-output name=engine_version::$value
+      - name: Download
+        run: ./macos-download.sh
+      - name: Patch
+        run: |
+          cp main.gn engine/src/flutter/BUILD.gn
+          cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
+          cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
+      - name: Dart
+        run: ./linux-dart.sh
+      - name: Generate configs
+        run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
+      - name: Build
+        run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
+      - name: Print tree
+        run: tree ./
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
+          path: engine_out
+      - name: Create release zip
+        run: ${{ format('zip -qq -r ./{0}.zip ./engine_out/*', matrix.config.tag) }}
+=======
+      - uses: actions/checkout@v1
+      - name: Load engine version
+        uses: actions/download-artifact@v1
+        with:
+          name: engine_version
+      - name: Get engine version
+        id: get_engine_version
+        run: |
+          value=`cat engine_version/engine_version.txt`
+          echo ::set-output name=engine_version::$value
+      - name: Dev dependencies
+        run: ./macos-dev-dependencies.sh
+      - name: Download
+        run: ./macos-download.sh
+      - name: Patch
+        run: |
+          cp main.gn engine/src/flutter/BUILD.gn
+          cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
+          cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
+      - name: Dart
+        run: ./linux-dart.sh
+      - name: Generate configs
+        run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
+      - name: Build
+        run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
+      - name: Print tree
+        run: tree ./
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
+          path: engine_out
+      - name: Create release zip
+        run: ${{ format('zip -qq -r ./{0}.zip ./engine_out/*', matrix.config.tag) }}
+>>>>>>> 941c24d... Install dependencies
