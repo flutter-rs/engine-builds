@@ -135,11 +135,16 @@ jobs:
       - name: Check release
         id: release_check
         run: |
+          content=`curl https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-macosx_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}`
+          echo $content
           status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-macosx_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}`
-          if [ "$status" == "200" ]
+          echo $status
+          if [ $status == "200" ]
           then
+            echo Skipping build
             echo ::set-output name=missing::false
           else
+            echo Building
             echo ::set-output name=missing::true
           fi
       - name: Dependencies
