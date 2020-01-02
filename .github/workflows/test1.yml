@@ -3,38 +3,6 @@ name: Flutter Engine
 on: [push]
 
 jobs:
-  create-release:
-    name: Release
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Clone
-        uses: actions/checkout@v2
-        with:
-          repository: "flutter/engine"
-          path: "engine"
-      - name: Get flutter version
-        id: get_flutter_info
-        run: |
-          value=`git -C ./engine/ rev-parse HEAD`
-          echo ::set-output name=flutter_version::$value
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ format('f_{0}', steps.get_flutter_info.outputs.flutter_version) }}
-          release_name: Flutter ${{ steps.get_flutter_info.outputs.flutter_version }}
-          draft: false
-          prerelease: false
-      - name: Store release url
-        run: echo "${{ steps.create_release.outputs.upload_url }}" > release_url.txt
-      - name: Upload release url
-        uses: actions/upload-artifact@v1
-        with:
-          name: release_url
-          path: release_url.txt
-
   linux:
     runs-on: ubuntu-16.04
     needs: [create-release]
@@ -75,46 +43,73 @@ jobs:
             gn: --embedder-for-target --runtime-mode release --lto --stripped
     steps:
       - uses: actions/checkout@v1
+      - name: Get engine version
+        id: get_engine_version
+        run: |
+          value=`curl https://raw.githubusercontent.com/flutter/flutter/master/bin/internal/engine.version`
+          echo ::set-output name=engine_version::$value
+      - name: Check release
+        id: release_check
+        run: |
+          status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-linux_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}`
+          if [ "$status" == "200" ]
+          then
+            echo ::set-output name=missing::false
+          else
+            echo ::set-output name=missing::true
+          fi
       - name: Download
+        if: steps.release_check.outputs.missing
         run: ./linux-download.sh
       - name: Patch
+        if: steps.release_check.outputs.missing
         run: |
           cp main.gn engine/src/flutter/BUILD.gn
           cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
           cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
       - name: Dart
+        if: steps.release_check.outputs.missing
         run: ./linux-dart.sh
-      - name: Generate configs
+      - name: Generate config
+        if: steps.release_check.outputs.missing
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
+        if: steps.release_check.outputs.missing
         run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
-        run: tree ./
-      - name: Uploading artifacts
+        if: steps.release_check.outputs.missing
+        run: tree ./engine_out/
+      - name: Upload artifact
+        if: steps.release_check.outputs.missing
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
           path: engine_out
       - name: Create release zip
-        run: ${{ format('zip -qq -r ./{0}.zip ./engine_out/*', matrix.config.tag) }}
-      - name: Load release url
-        uses: actions/download-artifact@v1
+        if: steps.release_check.outputs.missing
+        run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag) }}
+      - name: Create release
+        if: steps.release_check.outputs.missing
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: release_url
-      - name: Get release url
-        id: get_release_info
-        run: |
-          value=`cat release_url/release_url.txt`
-          echo ::set-output name=upload_url::$value
+          tag_name: ${{ format('f-{0}-linux_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}
+          release_name: ${{ format('Flutter {0} (linux_x64, {1})', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}
+          draft: false
+          prerelease: false
       - name: Upload release asset
+        if: steps.release_check.outputs.missing
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
           asset_name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
           asset_content_type: application/octet-stream
+
   macos:
     runs-on: macos-latest
     needs: [create-release]
@@ -129,45 +124,72 @@ jobs:
             gn: --embedder-for-target --runtime-mode release --lto --stripped
     steps:
       - uses: actions/checkout@v1
+      - name: Get engine version
+        id: get_engine_version
+        run: |
+          value=`curl https://raw.githubusercontent.com/flutter/flutter/master/bin/internal/engine.version`
+          echo ::set-output name=engine_version::$value
+      - name: Check release
+        id: release_check
+        run: |
+          status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-macosx_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}`
+          if [ "$status" == "200" ]
+          then
+            echo ::set-output name=missing::false
+          else
+            echo ::set-output name=missing::true
+          fi
       - name: Dependencies
+        if: steps.release_check.outputs.missing
         run: ./macos-dev-dependencies.sh
       - name: Download
+        if: steps.release_check.outputs.missing
         run: ./macos-download.sh
       - name: Patch
+        if: steps.release_check.outputs.missing
         run: |
           cp main.gn engine/src/flutter/BUILD.gn
           cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
           cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
       - name: Dart
+        if: steps.release_check.outputs.missing
         run: ./linux-dart.sh
-      - name: Generate configs
+      - name: Generate config
+        if: steps.release_check.outputs.missing
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
+        if: steps.release_check.outputs.missing
         run: ${{ format('./macos-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
-        run: tree ./
+        if: steps.release_check.outputs.missing
+        run: tree ./engine_out/
       - name: Uploading artifacts
+        if: steps.release_check.outputs.missing
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('engine-macosx_x64-{0}', matrix.config.tag) }}
           path: engine_out
       - name: Create release zip
-        run: ${{ format('zip -qq -r ./{0}.zip ./engine_out/*', matrix.config.tag) }}
-      - name: Load release url
-        uses: actions/download-artifact@v1
+        if: steps.release_check.outputs.missing
+        run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag) }}
+      - name: Create release
+        if: steps.release_check.outputs.missing
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: release_url
-      - name: Get release url
-        id: get_release_info
-        run: |
-          value=`cat release_url/release_url.txt`
-          echo ::set-output name=upload_url::$value
+          tag_name: ${{ format('f-{0}-macosx_x64-{1}', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}
+          release_name: ${{ format('Flutter {0} (macosx_x64, {1})', steps.get_engine_version.outputs.engine_version, matrix.config.tag) }}
+          draft: false
+          prerelease: false
       - name: Upload release asset
+        if: steps.release_check.outputs.missing
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release_info.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
           asset_name: ${{ format('engine-macosx_x64-{0}', matrix.config.tag) }}
           asset_content_type: application/octet-stream
