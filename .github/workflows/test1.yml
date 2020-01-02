@@ -56,42 +56,44 @@ jobs:
           echo $status
           if [ $status == "200" ]
           then
+            echo Skipping build
             echo ::set-output name=missing::false
           else
+            echo Building
             echo ::set-output name=missing::true
           fi
       - name: Download
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ./linux-download.sh
       - name: Patch
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: |
           cp main.gn engine/src/flutter/BUILD.gn
           cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
           cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
       - name: Dart
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ./linux-dart.sh
       - name: Generate config
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('./linux-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: tree ./engine_out/
       - name: Upload artifact
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('engine-linux_x64-{0}', matrix.config.tag) }}
           path: engine_out
       - name: Create release zip
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag) }}
       - name: Create release
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -102,7 +104,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload release asset
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -141,40 +143,40 @@ jobs:
             echo ::set-output name=missing::true
           fi
       - name: Dependencies
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ./macos-dev-dependencies.sh
       - name: Download
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ./macos-download.sh
       - name: Patch
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: |
           cp main.gn engine/src/flutter/BUILD.gn
           cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
           cp embedder_exports.lst engine/src/flutter/shell/platform/embedder/embedder_exports.lst
       - name: Dart
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ./linux-dart.sh
       - name: Generate config
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
         if: steps.release_check.outputs.missing
         run: ${{ format('./macos-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: tree ./engine_out/
       - name: Uploading artifacts
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         uses: actions/upload-artifact@v1
         with:
           name: ${{ format('engine-macosx_x64-{0}', matrix.config.tag) }}
           path: engine_out
       - name: Create release zip
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag) }}
       - name: Create release
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -185,7 +187,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Upload release asset
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
