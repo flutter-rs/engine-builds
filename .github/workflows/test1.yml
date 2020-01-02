@@ -166,7 +166,7 @@ jobs:
         if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('./linux-gn.sh "{0}"', matrix.config.gn) }}
       - name: Build
-        if: steps.release_check.outputs.missing
+        if: steps.release_check.outputs.missing == 'true'
         run: ${{ format('./macos-build.sh {0}', matrix.config.tag) }}
       - name: Print tree
         if: steps.release_check.outputs.missing == 'true'
