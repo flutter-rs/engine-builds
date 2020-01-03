@@ -1,6 +1,8 @@
 name: Flutter Engine
 
-on: [push]
+on:
+  schedule:
+    - cron: 30 */3 * * *
 
 jobs:
   linux:
