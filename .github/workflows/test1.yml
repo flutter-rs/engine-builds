@@ -121,10 +121,24 @@ jobs:
     strategy:
       matrix:
         config:
+          - tag: ios_debug_unopt
+            gn: --embedder-for-target --runtime-mode=debug --unoptimized --ios
+          - tag: ios_debug_unopt_arm
+            gn: --embedder-for-target --runtime-mode=debug --unoptimized --ios --ios-cpu=arm
           - tag: host_debug_unopt
             gn: --embedder-for-target --runtime-mode=debug --unoptimized
+
+          - tag: ios_profile
+            gn: --embedder-for-target --runtime-mode profile --lto --ios
+          - tag: ios_profile_arm
+            gn: --embedder-for-target --runtime-mode profile --lto --ios --ios-cpu=arm
           - tag: host_profile
             gn: --embedder-for-target --runtime-mode profile --lto
+
+          - tag: ios_release
+            gn: --embedder-for-target --runtime-mode release --lto --stripped --ios
+          - tag: ios_release_arm
+            gn: --embedder-for-target --runtime-mode release --lto --stripped --ios --ios-cpu=arm
           - tag: host_release
             gn: --embedder-for-target --runtime-mode release --lto --stripped
     steps:
