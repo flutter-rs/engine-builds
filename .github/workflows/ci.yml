@@ -1,0 +1,247 @@
+name: Flutter Engine
+
+on:
+  schedule:
+  - cron: 30 */2 * * *
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - tag: android_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_debug_unopt_arm64
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=arm64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_debug_unopt_x86
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x86
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_debug_unopt_x64
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --android --android-cpu=x64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: host_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: ios_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --ios
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: ios_debug_unopt_arm
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized --ios --ios-cpu=arm
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_debug_unopt
+          gn: --embedder-for-target --runtime-mode=debug --unoptimized
+          host: windows-latest
+          host_tag: windows_x64
+
+        - tag: android_profile
+          gn: --embedder-for-target --runtime-mode profile --lto --android
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_profile_arm64
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=arm64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_profile_x86
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=x86
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_profile_x64
+          gn: --embedder-for-target --runtime-mode profile --lto --android --android-cpu=x64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: host_profile
+          gn: --embedder-for-target --runtime-mode profile --lto
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: ios_profile
+          gn: --embedder-for-target --runtime-mode profile --lto --ios
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: ios_profile_arm
+          gn: --embedder-for-target --runtime-mode profile --lto --ios --ios-cpu=arm
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_profile
+          gn: --embedder-for-target --runtime-mode profile --lto
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_profile
+          gn: --embedder-for-target --runtime-mode profile --lto
+          host: windows-latest
+          host_tag: windows_x64
+
+        - tag: android_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_release_arm64
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android
+            --android-cpu=arm64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_release_x86
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android
+            --android-cpu=x86
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: android_release_x64
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --android
+            --android-cpu=x64
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: host_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped
+          host: ubuntu-latest
+          host_tag: linux_x64
+        - tag: ios_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --ios
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: ios_release_arm
+          gn: --embedder-for-target --runtime-mode release --lto --stripped --ios
+            --ios-cpu=arm
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped
+          host: macos-latest
+          host_tag: macosx_x64
+        - tag: host_release
+          gn: --embedder-for-target --runtime-mode release --lto --stripped
+          host: windows-latest
+          host_tag: windows_x64
+
+    runs-on: ${{ matrix.config.host }}
+
+    env:
+      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+      GYP_MSVS_OVERRIDE_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Install curl (windows)
+      if: matrix.config.host == 'windows-latest'
+      run: choco install curl
+
+    - name: Get engine version
+      id: get_engine_version
+      run: |
+        value=`curl https://raw.githubusercontent.com/flutter/flutter/master/bin/internal/engine.version`
+        echo ::set-output name=engine_version::$value
+      shell: bash
+
+    - name: Check release
+      id: release_check
+      run: |
+        content=`curl https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
+        echo $content
+        status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
+        echo $status
+        if [ $status == "200" ]
+        then
+          echo Skipping build
+          echo ::set-output name=missing::false
+        else
+          echo Building
+          echo ::set-output name=missing::true
+        fi
+      shell: bash
+
+    - name: Install Python 2.x
+      if: steps.release_check.outputs.missing == 'true'
+      uses: actions/setup-python@v1
+      with:
+        python-version: '2.x'
+
+    - name: Install dependencies (macos)
+      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'macos-latest'
+      run: |
+        brew install binutils
+        brew install tree
+
+    - name: Install dependencies (windows)
+      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'windows-latest'
+      run: |
+        choco install tree
+        choco install zip
+
+    - name: Install dependencies and download (linux)
+      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'ubuntu-latest'
+      run: ./linux-download.sh
+
+    - name: Download
+      if: steps.release_check.outputs.missing == 'true' && matrix.config.host != 'ubuntu-latest'
+      run: ./download.sh
+      shell: bash
+
+    - name: Patch
+      if: steps.release_check.outputs.missing == 'true'
+      run: |
+        cp main.gn engine/src/flutter/BUILD.gn
+        cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
+        cp embedder_exports_linux engine/src/flutter/shell/platform/embedder/embedder_exports_linux
+        cp embedder_exports_macos engine/src/flutter/shell/platform/embedder/embedder_exports_macos
+        cp embedder_exports_windows engine/src/flutter/shell/platform/embedder/embedder_exports_windows
+      shell: bash
+
+    - name: Generate config
+      if: steps.release_check.outputs.missing == 'true'
+      run: ${{ format('./gn.sh "{0}"', matrix.config.gn) }}
+      shell: bash
+
+    - name: Build
+      if: steps.release_check.outputs.missing == 'true'
+      run: ${{ format('./build.sh {0}', matrix.config.tag) }}
+      shell: bash
+
+    - name: Print tree
+      if: steps.release_check.outputs.missing == 'true'
+      run: tree ./engine_out/
+      shell: bash
+
+    - name: Create release zip
+      if: steps.release_check.outputs.missing == 'true'
+      run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag)
+        }}
+      shell: bash
+
+    - name: Create release
+      if: steps.release_check.outputs.missing == 'true'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version,
+          matrix.config.host_tag, matrix.config.tag) }}
+        release_name: ${{ format('Flutter {0} ({1}, {2})', steps.get_engine_version.outputs.engine_version,
+          matrix.config.host_tag, matrix.config.tag) }}
+
+    - name: Upload release asset
+      if: steps.release_check.outputs.missing == 'true'
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
+        asset_name: ${{ format('engine-{0}-{1}', matrix.config.host_tag, matrix.config.tag) }}
+        asset_content_type: application/octet-stream

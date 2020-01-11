@@ -106,7 +106,15 @@ template("embedder_source_set") {
 
     public_configs += [ "$flutter_root:config" ]
 
-    ldflags = [ "-Wl,--dynamic-list=" + rebase_path("embedder_exports.lst") ]
+    if (is_linux || is_android) {
+      ldflags = [ "-Wl,--dynamic-list=" + rebase_path("embedder_exports_linux") ]
+    }
+    if (is_mac || is_ios) {
+      ldflags = [ "-Wl,-exported_symbols_list," + rebase_path("embedder_exports_macos") ]
+    }
+    if (is_win) {
+      ldflags = [ "/DEF:" + rebase_path("embedder_exports_windows") ]
+    }
   }
 }
 
