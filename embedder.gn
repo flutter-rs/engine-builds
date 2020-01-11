@@ -9,7 +9,19 @@ import("$flutter_root/shell/platform/embedder/embedder.gni")
 import("$flutter_root/testing/testing.gni")
 
 action("icudtl_object") {
-  script = "$flutter_root/sky/tools/objcopy.py"
+  if (is_win) {
+    script = "$flutter_root/sky/tools/bin2coff.py"
+
+    objcopy_path = "D:\a\engine-builds\engine-builds\bin2coff.exe"
+  } else {
+    script = "$flutter_root/sky/tools/objcopy.py"
+
+    if (is_android) {
+      objcopy_path = rebase_path(android_objcopy)
+    } else {
+      objcopy_path = "objcopy"
+    }
+  }
 
   icudtl_input = "//third_party/icu/flutter/icudtl.dat"
   icudtl_output = "$root_build_dir/flutter_icu/icudtl.o"
@@ -21,12 +33,6 @@ action("icudtl_object") {
   outputs = [
     "$icudtl_output",
   ]
-
-  if (is_android) {
-    objcopy_path = rebase_path(android_objcopy)
-  } else {
-    objcopy_path = "objcopy"
-  }
 
   args = [
     "--objcopy",

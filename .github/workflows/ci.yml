@@ -200,6 +200,7 @@ jobs:
         cp embedder_exports_linux engine/src/flutter/shell/platform/embedder/embedder_exports_linux
         cp embedder_exports_macos engine/src/flutter/shell/platform/embedder/embedder_exports_macos
         cp embedder_exports_windows engine/src/flutter/shell/platform/embedder/embedder_exports_windows
+        cp bin2coff.py engine/src/flutter/sky/tools/bin2coff.py
       shell: bash
 
     - name: Generate config

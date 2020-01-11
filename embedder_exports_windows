@@ -1,4 +1,4 @@
 LIBRARY
 EXPORTS
-  _binary_icudtl_dat_start
-  _binary_icudtl_dat_size
+  _binary_icudtl_dat_start=icudtl
+  _binary_icudtl_dat_size=icudtl_size
