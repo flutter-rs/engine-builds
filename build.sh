@@ -1,4 +1,3 @@
-#!/bin/bash
 DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 ENGINE_PATH="${PWD}/engine"
 export PATH="$DEPOT_TOOLS_PATH:/usr/local/opt/binutils/bin:$PATH"
