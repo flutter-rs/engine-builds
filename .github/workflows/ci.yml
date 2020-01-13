@@ -150,6 +150,7 @@ jobs:
       shell: bash
 
     - name: Check release
+      if: github.event_name == 'schedule'
       id: release_check
       run: |
         content=`curl https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
@@ -159,42 +160,40 @@ jobs:
         if [ $status == "200" ]
         then
           echo Skipping build
-          echo ::set-output name=missing::false
-        else
-          echo Building
-          echo ::set-output name=missing::true
+          echo ::set-output name=skip_build::true
         fi
       shell: bash
 
     - name: Install Python 2.x
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       uses: actions/setup-python@v1
       with:
         python-version: '2.x'
 
     - name: Install dependencies (macos)
-      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'macos-latest'
+      if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'macos-latest'
       run: |
         brew install binutils
         brew install tree
 
     - name: Install dependencies (windows)
-      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'windows-latest'
+      if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'windows-latest'
       run: |
         choco install tree
         choco install zip
 
-    - name: Install dependencies and download (linux)
-      if: steps.release_check.outputs.missing == 'true' && matrix.config.host == 'ubuntu-latest'
-      run: ./linux-download.sh
+    - name: Install depot tools
+      if: steps.release_check.outputs.skip_build != 'true'
+      run: ./fetch-depot-tools.sh
+      shell: bash
 
-    - name: Download
-      if: steps.release_check.outputs.missing == 'true' && matrix.config.host != 'ubuntu-latest'
-      run: ./download.sh
+    - name: Download engine
+      if: steps.release_check.outputs.skip_build != 'true'
+      run: ./fetch-engine.sh
       shell: bash
 
     - name: Patch
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: |
         cp main.gn engine/src/flutter/BUILD.gn
         cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
@@ -205,33 +204,34 @@ jobs:
       shell: bash
 
     - name: Generate config
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: ${{ format('./gn.sh "{0}"', matrix.config.gn) }}
       shell: bash
 
     - name: Build
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: ${{ format('./build.sh {0}', matrix.config.tag) }}
       shell: bash
 
     - name: Print out tree
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: tree ./engine/src/out/
       shell: bash
 
     - name: Print release tree
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: tree ./engine_out/
       shell: bash
 
     - name: Create release zip
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
       run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag)
         }}
       shell: bash
 
     - name: Create release
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
+      continue-on-error: true
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -243,7 +243,8 @@ jobs:
           matrix.config.host_tag, matrix.config.tag) }}
 
     - name: Upload release asset
-      if: steps.release_check.outputs.missing == 'true'
+      if: steps.release_check.outputs.skip_build != 'true'
+      continue-on-error: true
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
