@@ -170,6 +170,10 @@ jobs:
       with:
         python-version: '2.x'
 
+    - name: Install dependencies (ubuntu)
+      if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'ubuntu-latest'
+      run: sudo apt-get install tree zip
+
     - name: Install dependencies (macos)
       if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'macos-latest'
       run: |
