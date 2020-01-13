@@ -1,0 +1,48 @@
++++ switches.cc
+@@ -66,20 +66,6 @@
+ // Include again for struct definition.
+ #include "flutter/shell/common/switches.h"
+ 
+-// Define symbols for the ICU data that is linked into the Flutter library on
+-// Android.  This is a workaround for crashes seen when doing dynamic lookups
+-// of the engine's own symbols on some older versions of Android.
+-#if OS_ANDROID
+-extern uint8_t _binary_icudtl_dat_start[];
+-extern uint8_t _binary_icudtl_dat_end[];
+-
+-static std::unique_ptr<fml::Mapping> GetICUStaticMapping() {
+-  return std::make_unique<fml::NonOwnedMapping>(
+-      _binary_icudtl_dat_start,
+-      _binary_icudtl_dat_end - _binary_icudtl_dat_start);
+-}
+-#endif
+-
+ namespace flutter {
+ 
+ void PrintUsage(const std::string& executable_name) {
+@@ -185,9 +171,9 @@
+ 
+   auto lookup_symbol = [&mapping, &size, symbol_prefix](
+                            const fml::RefPtr<fml::NativeLibrary>& library) {
+-    mapping = library->ResolveSymbol((symbol_prefix + "_start").c_str());
++    mapping = library->ResolveSymbol((symbol_prefix + "Data").c_str());
+     size = reinterpret_cast<intptr_t>(
+-        library->ResolveSymbol((symbol_prefix + "_size").c_str()));
++        library->ResolveSymbol((symbol_prefix + "Size").c_str()));
+   };
+ 
+   fml::RefPtr<fml::NativeLibrary> library =
+@@ -328,13 +314,9 @@
+       command_line.GetOptionValue(FlagForSwitch(Switch::ICUNativeLibPath),
+                                   &native_lib_path);
+ 
+-#if OS_ANDROID
+-      settings.icu_mapper = GetICUStaticMapping;
+-#else
+       settings.icu_mapper = [icu_symbol_prefix, native_lib_path] {
+         return GetSymbolMapping(icu_symbol_prefix, native_lib_path);
+       };
+-#endif
+     }
+   }
+ 

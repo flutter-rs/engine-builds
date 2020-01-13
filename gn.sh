@@ -1,4 +1,4 @@
-#/bin/bash
+set -e
 DEPOT_TOOLS_PATH="${PWD}/depot_tools"
 ENGINE_PATH="${PWD}/engine"
 export PATH="$PATH:$DEPOT_TOOLS_PATH"

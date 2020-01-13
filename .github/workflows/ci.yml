@@ -172,19 +172,15 @@ jobs:
 
     - name: Install dependencies (ubuntu)
       if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'ubuntu-latest'
-      run: sudo apt-get install tree zip
+      run: sudo apt-get install patch tree zip
 
     - name: Install dependencies (macos)
       if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'macos-latest'
-      run: |
-        brew install binutils
-        brew install tree
+      run: brew install binutils gpatch tree
 
     - name: Install dependencies (windows)
       if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'windows-latest'
-      run: |
-        choco install tree
-        choco install zip
+      run: choco install patch tree zip
 
     - name: Install depot tools
       if: steps.release_check.outputs.skip_build != 'true'
@@ -198,23 +194,17 @@ jobs:
 
     - name: Patch
       if: steps.release_check.outputs.skip_build != 'true'
-      run: |
-        cp main.gn engine/src/flutter/BUILD.gn
-        cp embedder.gn engine/src/flutter/shell/platform/embedder/BUILD.gn
-        cp embedder_exports_linux engine/src/flutter/shell/platform/embedder/embedder_exports_linux
-        cp embedder_exports_macos engine/src/flutter/shell/platform/embedder/embedder_exports_macos
-        cp embedder_exports_windows engine/src/flutter/shell/platform/embedder/embedder_exports_windows
-        cp bin2coff.py engine/src/flutter/sky/tools/bin2coff.py
+      run: ./patch-engine.sh
       shell: bash
 
     - name: Generate config
       if: steps.release_check.outputs.skip_build != 'true'
-      run: ${{ format('./gn.sh "{0}"', matrix.config.gn) }}
+      run: ./gn.sh ${{ matrix.config.gn }}
       shell: bash
 
     - name: Build
       if: steps.release_check.outputs.skip_build != 'true'
-      run: ${{ format('./build.sh {0}', matrix.config.tag) }}
+      run: ./build.sh ${{ matrix.config.tag }}
       shell: bash
 
     - name: Print out tree
@@ -229,8 +219,7 @@ jobs:
 
     - name: Create release zip
       if: steps.release_check.outputs.skip_build != 'true'
-      run: ${{ format('cd engine_out && zip -qq -r ../{0}.zip ./*', matrix.config.tag)
-        }}
+      run: cd engine_out && zip -qq -r ../${{ matrix.config.tag }}.zip ./*
       shell: bash
 
     - name: Create release

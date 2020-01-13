@@ -1,3 +1,4 @@
+set -e
 export ENGINE_PATH="${PWD}/engine"
 export PATH="${PWD}/depot_tools:${PATH}"
 
