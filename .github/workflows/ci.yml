@@ -214,7 +214,12 @@ jobs:
       run: ${{ format('./build.sh {0}', matrix.config.tag) }}
       shell: bash
 
-    - name: Print tree
+    - name: Print out tree
+      if: steps.release_check.outputs.missing == 'true'
+      run: tree ./engine/src/out/
+      shell: bash
+
+    - name: Print release tree
       if: steps.release_check.outputs.missing == 'true'
       run: tree ./engine_out/
       shell: bash
