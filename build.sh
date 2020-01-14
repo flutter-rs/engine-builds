@@ -21,14 +21,16 @@ cp $SRC_OUT_PATH/libflutter_engine.so $OUT_PATH/libflutter_engine.so ||
 cp $SRC_OUT_PATH/libflutter_engine.dylib $OUT_PATH/libflutter_engine.dylib ||
 (
   cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll &&
-  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.lib
+  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.lib &&
+  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.exp &&
+  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.pdb
 )
 cp $SRC_OUT_PATH/flutter_embedder.h $OUT_PATH/flutter_embedder.h
 cp $ENGINE_PATH/src/third_party/icu/flutter/icudtl.dat $OUT_PATH/icudtl.dat
 cp -r $SRC_OUT_PATH/flutter_patched_sdk $OUT_PATH/flutter_patched_sdk
 cp $SRC_OUT_PATH/dart $OUT_PATH/dart || true
 cp $SRC_OUT_PATH/gen/frontend_server.dart.snapshot $OUT_PATH/gen/frontend_server.dart.snapshot || true
-cp $SRC_OUT_PATH/gen_snapshot $OUT_PATH/gen_snapshot ||
-cp $SRC_OUT_PATH/clang_x64/gen_snapshot $OUT_PATH/gen_snapshot_x64 ||
-cp $SRC_OUT_PATH/clang_x86/gen_snapshot $OUT_PATH/gen_snapshot_x86 ||
-cp $SRC_OUT_PATH/clang_x64/gen_snapshot_host_targeting_host $OUT_PATH/gen_snapshot_host_targeting_host
+cp $SRC_OUT_PATH/gen_snapshot $OUT_PATH/gen_snapshot || true
+cp $SRC_OUT_PATH/clang_x64/gen_snapshot $OUT_PATH/gen_snapshot_x64 || true
+cp $SRC_OUT_PATH/clang_x86/gen_snapshot $OUT_PATH/gen_snapshot_x86 || true
+cp $SRC_OUT_PATH/clang_x64/gen_snapshot_host_targeting_host $OUT_PATH/gen_snapshot_host_targeting_host || true
