@@ -153,7 +153,7 @@ jobs:
       if: github.event_name != 'pull_request'
       id: release_check
       run: |
-        content=`curl https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
+        content=`curl --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
         echo $content
         status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
         echo $status
