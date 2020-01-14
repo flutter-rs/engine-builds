@@ -219,28 +219,15 @@ jobs:
 
     - name: Create release zip
       if: steps.release_check.outputs.skip_build != 'true'
-      run: cd engine_out && zip -qq -r ../${{ matrix.config.tag }}.zip ./*
+      run: cd engine_out && zip -qq -r ../${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip ./*
       shell: bash
 
     - name: Create release
       if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request'
-      id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version,
-          matrix.config.host_tag, matrix.config.tag) }}
-        release_name: ${{ format('Flutter {0} ({1}, {2})', steps.get_engine_version.outputs.engine_version,
-          matrix.config.host_tag, matrix.config.tag) }}
-
-    - name: Upload release asset
-      if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request'
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ format('./{0}.zip', matrix.config.tag) }}
-        asset_name: ${{ format('engine-{0}-{1}', matrix.config.host_tag, matrix.config.tag) }}
-        asset_content_type: application/octet-stream
+        tag_name: f-${{ steps.get_engine_version.outputs.engine_version }}
+        name: Flutter ${{ steps.get_engine_version.outputs.engine_version }}
+        files: ./${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip
