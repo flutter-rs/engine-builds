@@ -150,7 +150,7 @@ jobs:
       shell: bash
 
     - name: Check release
-      #if: github.event_name == 'schedule'
+      if: github.event_name != 'pull_request'
       id: release_check
       run: |
         content=`curl https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
@@ -223,7 +223,7 @@ jobs:
       shell: bash
 
     - name: Create release
-      if: steps.release_check.outputs.skip_build != 'true' && github.event_name == 'pull_request'
+      if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request'
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -235,7 +235,7 @@ jobs:
           matrix.config.host_tag, matrix.config.tag) }}
 
     - name: Upload release asset
-      if: steps.release_check.outputs.skip_build != 'true' && github.event_name == 'pull_request'
+      if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request'
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
