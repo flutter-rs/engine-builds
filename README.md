@@ -9,7 +9,7 @@ Flutter engine builds for the stable, beta and dev channels in debug, profile an
 - aarch64-linux-android
 - i686-linux-android
 - x86_64-linux-android
-- arvm7-apple-ios
+- armv7-apple-ios
 - aarch64-apple-ios
 
 # License

@@ -4,6 +4,8 @@ on:
   schedule:
   - cron: 0 0 * * *
   push:
+    branches:
+    - master
   pull_request:
 
 jobs:
@@ -177,6 +179,7 @@ jobs:
       shell: bash
 
     - name: Checkout
+      if: steps.release_check.outputs.skip_build != 'true'
       uses: actions/checkout@v1
 
     - name: Install Python 2.x
