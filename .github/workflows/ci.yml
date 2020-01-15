@@ -135,9 +135,6 @@ jobs:
       GYP_MSVS_OVERRIDE_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-
     - name: Install curl (windows)
       if: matrix.config.host == 'windows-latest'
       run: choco install curl
@@ -149,20 +146,38 @@ jobs:
         echo ::set-output name=engine_version::$value
       shell: bash
 
+    - name: Create release
+      if: github.event_name != 'pull_request'
+      continue-on-error: true
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
+      with:
+        tag_name: f-${{ steps.get_engine_version.outputs.engine_version }}
+        release_name: Flutter Engine ${{ steps.get_engine_version.outputs.engine_version }}
+
     - name: Check release
       if: github.event_name != 'pull_request'
       id: release_check
       run: |
-        content=`curl --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
+        url="https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/f-${{ steps.get_engine_version.outputs.engine_version }}"
+        header="Authorization: token ${{ secrets.PERMANENT_GITHUB_TOKEN }}"
+
+        content=`curl --header "$header" $url`
         echo $content
-        status=`curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/flutter-rs/engine-builds/releases/tags/${{ format('f-{0}-{1}-{2}', steps.get_engine_version.outputs.engine_version, matrix.config.host_tag, matrix.config.tag) }}`
-        echo $status
-        if [ $status == "200" ]
+
+        assets=`echo $content | jq .assets[].name`
+        echo $assets
+
+        if echo $assets | grep -q ${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip
         then
           echo Skipping build
           echo ::set-output name=skip_build::true
         fi
       shell: bash
+
+    - name: Checkout
+      uses: actions/checkout@v1
 
     - name: Install Python 2.x
       if: steps.release_check.outputs.skip_build != 'true'
@@ -222,12 +237,12 @@ jobs:
       run: cd engine_out && zip -qq -r ../${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip ./*
       shell: bash
 
-    - name: Create release
+    - name: Upload release asset
       if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
       with:
         tag_name: f-${{ steps.get_engine_version.outputs.engine_version }}
         name: Flutter ${{ steps.get_engine_version.outputs.engine_version }}
-        files: ./${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip
+        files: ${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip
