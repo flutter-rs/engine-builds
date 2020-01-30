@@ -205,8 +205,12 @@ jobs:
       run: ./fetch-depot-tools.sh
       shell: bash
 
-    - name: Download engine
-      if: steps.release_check.outputs.skip_build != 'true'
+    - name: Download engine (windows)
+      if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'windows-latest'
+      run: ./fetch-engine.bat
+
+    - name: Download engine (macos + ubuntu)
+      if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host != 'windows-latest'
       run: ./fetch-engine.sh
       shell: bash
 
