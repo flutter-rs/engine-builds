@@ -21,9 +21,9 @@ cp $SRC_OUT_PATH/libflutter_engine.so $OUT_PATH/libflutter_engine.so ||
 cp $SRC_OUT_PATH/libflutter_engine.dylib $OUT_PATH/libflutter_engine.dylib ||
 (
   cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll &&
-  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.lib &&
-  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.exp &&
-  cp $SRC_OUT_PATH/flutter_engine.dll $OUT_PATH/flutter_engine.dll.pdb
+  cp $SRC_OUT_PATH/flutter_engine.dll.lib $OUT_PATH/flutter_engine.lib &&
+  cp $SRC_OUT_PATH/flutter_engine.dll.exp $OUT_PATH/flutter_engine.exp &&
+  cp $SRC_OUT_PATH/flutter_engine.dll.pdb $OUT_PATH/flutter_engine.pdb
 )
 cp $SRC_OUT_PATH/flutter_embedder.h $OUT_PATH/flutter_embedder.h
 cp $ENGINE_PATH/src/third_party/icu/flutter/icudtl.dat $OUT_PATH/icudtl.dat
