@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("$flutter_root/common/config.gni")
+import("//flutter/common/config.gni")
 
 # Whether to build the dartdevc sdk, libraries, and source files
 # required for the flutter web sdk.
@@ -14,14 +14,14 @@ group("flutter") {
   testonly = true
 
   public_deps = [
-    "$flutter_root/lib/snapshot:generate_snapshot_bin",
-    "$flutter_root/lib/snapshot:kernel_platform_files",
-    "$flutter_root/shell/platform/embedder:flutter_engine",
+    "//flutter/lib/snapshot:generate_snapshot_bin",
+    "//flutter/lib/snapshot:kernel_platform_files",
+    "//flutter/shell/platform/embedder:flutter_engine",
   ]
 
   if (current_toolchain == host_toolchain) {
     public_deps += [
-      "$flutter_root/flutter_frontend_server:frontend_server",
+      "//flutter/flutter_frontend_server:frontend_server",
       "//third_party/dart:create_sdk",
     ]
   }
@@ -44,6 +44,6 @@ group("dist") {
   testonly = true
 
   deps = [
-    "$flutter_root/sky/dist",
+    "//flutter/sky/dist",
   ]
 }
