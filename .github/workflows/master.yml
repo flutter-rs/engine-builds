@@ -14,7 +14,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        channel: [stable, beta, dev]
         config:
         - tag: android_debug_unopt
           gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
@@ -145,7 +144,7 @@ jobs:
     - name: Get engine version
       id: get_engine_version
       run: |
-        value=`curl https://raw.githubusercontent.com/flutter/flutter/${{ matrix.channel }}/bin/internal/engine.version`
+        value=`curl https://raw.githubusercontent.com/flutter/flutter/master/bin/internal/engine.version`
         echo ::set-output name=engine_version::$value
       shell: bash
 
