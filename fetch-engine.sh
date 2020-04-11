@@ -8,7 +8,7 @@ mkdir -p $ENGINE_PATH
 cp gclientconfig $ENGINE_PATH/.gclient
 
 cd $ENGINE_PATH
-gclient sync
+gclient sync -r $1
 
 echo "Deleting extra components (github action harddrive limit)"
 rm -r src/fuchsia

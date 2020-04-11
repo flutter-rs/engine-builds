@@ -12,4 +12,4 @@ endlocal
 cp gclientconfig %ENGINE_PATH%\.gclient
 
 cd %ENGINE_PATH%
-gclient sync
+gclient sync -r %1
