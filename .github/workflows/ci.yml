@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        channel: [stable, beta, dev]
+        channel: [stable, beta, dev, master]
         config:
         - tag: android_debug_unopt
           gn: --embedder-for-target --runtime-mode=debug --unoptimized --android
