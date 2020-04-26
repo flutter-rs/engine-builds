@@ -192,11 +192,11 @@ jobs:
       if: steps.release_check.outputs.skip_build != 'true'
       uses: actions/checkout@v1
 
-    - name: Install Python 3.x
+    - name: Install Python 2.x
       if: steps.release_check.outputs.skip_build != 'true'
       uses: actions/setup-python@v1
       with:
-        python-version: '3.x'
+        python-version: '2.x'
 
     - name: Install dependencies (ubuntu)
       if: steps.release_check.outputs.skip_build != 'true' && matrix.config.host == 'ubuntu-latest'
