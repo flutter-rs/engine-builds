@@ -143,7 +143,7 @@ jobs:
       run: |
         pwd
         sudo df -h
-        sudo rm -rf /opt
+        sudo find /opt -maxdepth 1 ! -name hostedtoolcache ! -name opt | sudo xargs rm -rf
         sudo rm -rf /usr/share/dotnet
         sudo df -h
 
