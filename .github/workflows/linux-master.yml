@@ -36,6 +36,10 @@ jobs:
       GYP_MSVS_OVERRIDE_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
 
     steps:
+    - name: Disk Usage
+      if: matrix.config.host == 'ubuntu-latest'
+      run: sudo du -h --max-depth=2 /
+
     - name: Install curl (windows)
       if: matrix.config.host == 'windows-latest'
       run: choco install curl
