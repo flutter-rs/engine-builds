@@ -7,8 +7,8 @@ solutions = [
     "deps_file": "DEPS",
     "safesync_url": "",
     "custom_vars": {
-        "download_android_deps" : False,
-        "download_windows_deps" : False,
+        "download_android_deps" : True,
+        "download_windows_deps" : True,
     },
   },
 ]
