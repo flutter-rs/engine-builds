@@ -143,8 +143,8 @@ jobs:
       run: |
         pwd
         sudo df -h
-        rm -rf /opt
-        rm -rf /usr/share/dotnet
+        sudo rm -rf /opt
+        sudo rm -rf /usr/share/dotnet
         sudo df -h
 
     - name: Install curl (windows)
