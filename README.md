@@ -12,6 +12,8 @@ Flutter engine builds for the stable, beta and dev channels in debug, profile an
 - armv7-apple-ios
 - aarch64-apple-ios
 
+Builds are disabled for some platforms temporarily.
+
 # License
 Copyright 2020 flutter-rs
 
